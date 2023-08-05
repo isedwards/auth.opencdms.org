@@ -9,7 +9,7 @@ services:
     environment:
       POSTGRES_DB: keycloak
       POSTGRES_USER: keycloak
-      POSTGRES_PASSWORD: password
+      POSTGRES_PASSWORD: initpassword
   keycloak:
     build: .
     volumes:
@@ -18,12 +18,12 @@ services:
     environment:
         KC_PROXY: edge
         KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
-        KC_HOSTNAME_URL: https://<your-domain>
-        KC_HOSTNAME_ADMIN_URL: https://<your-domain>
+        KC_HOSTNAME_URL: https://key.opencdms.org
+        KC_HOSTNAME_ADMIN_URL: https://key.opencdms.org
         KC_DB_USERNAME: keycloak
-        KC_DB_PASSWORD: password
+        KC_DB_PASSWORD: initpassword
         KEYCLOAK_ADMIN: admin
-        KEYCLOAK_ADMIN_PASSWORD: password
+        KEYCLOAK_ADMIN_PASSWORD: initpassword
     ports:
       - 8080:8080
     depends_on:
@@ -35,9 +35,9 @@ services:
      - 443:443
     volumes:
       - /etc/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - /etc/nginx/sites-enabled/<your-domain>:/etc/nginx/sites-enabled/<your-domain>:ro
+      - /etc/nginx/sites-enabled/key.opencdms.org:/etc/nginx/sites-enabled/key.opencdms.org:ro
       - /etc/letsencrypt/:/etc/letsencrypt/:ro
-      - /etc/nginx/sites-available/<your-domain>:/etc/nginx/sites-available/<your-domain>:ro
+      - /etc/nginx/sites-available/key.opencdms.org:/etc/nginx/sites-available/key.opencdms.org:ro
     depends_on:
      - keycloak
 volumes:
