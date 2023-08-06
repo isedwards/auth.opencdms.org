@@ -17,13 +17,10 @@ services:
     command: start --optimized
     environment:
         KC_PROXY: edge
-        KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
         KC_HOSTNAME_URL: https://auth.opencdms.org
         KC_HOSTNAME_ADMIN_URL: https://auth.opencdms.org
-        KC_DB_USERNAME: keycloak
-        KC_DB_PASSWORD: initpassword
-        KEYCLOAK_ADMIN: admin
-        KEYCLOAK_ADMIN_PASSWORD: initpassword
+    env_file:
+      - default.env
     ports:
       - 8080:8080
     depends_on:
@@ -34,10 +31,25 @@ services:
      - 80:80
      - 443:443
     volumes:
-      - ./nginx.conf:/etc/nginx/conf.d/auth.opencdms.org.conf:ro
+      - ./auth.opencdms.org.conf:/etc/nginx/conf.d/auth.opencdms.org.conf:ro
+      - ./geo.opencdms.org.conf:/etc/nginx/conf.d/geo.opencdms.org.conf:ro
       - /etc/letsencrypt/:/etc/letsencrypt/:ro
     depends_on:
      - keycloak
+  api:
+    container_name: opencdms-api
+    build:
+      context: ./containers/api/
+      dockerfile: Dockerfile
+    env_file:
+      - default.env
+    ports:
+      - 5000:5000
+    volumes:
+      - "./containers/api/config/:/config"
+    tty: true
+    entrypoint: [ "opencdms", "api", "serve" ]
+
 volumes:
   postgres-db-volume:
   keycloak-data-volume:
