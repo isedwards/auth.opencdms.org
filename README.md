@@ -40,7 +40,7 @@ So we either install OpenResty which includes Nginx, or we add another container
 
 However, neither `lua-resty-openidc` nor `OAuth2-proxy` are adequate solutions for fine-grained Roll-Based Access Control (RBAC) - to control access to individual API end-points. If we pursue the edge authentication architecure then in addition we also need something like Open Policy Agent (OPA) to serve as our Policy Enforcement Point (PEP).
 
-There are other alternatives... like replacing Nginx and oauth2-proxy/OpenResty with the open-source version of [Kong](https://konghq.com/) although, for RBAC it looks like we may again need the enterprise version. Kong is an API Gateway or Service Mesh.
+There are other alternatives including API Gateways or Service Mesh. The open-source version of [Kong](https://konghq.com/) is commonly used although, for RBAC, it looks like we would again [need the enterprise version](https://konghq.com/install#kong-community:~:text=Security%20and%20Governance).
 
 ### Conclusions
 
