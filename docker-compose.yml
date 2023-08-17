@@ -29,8 +29,10 @@ services:
      - 80:80
      - 443:443
     volumes:
-      - ./auth.opencdms.org.conf:/etc/nginx/conf.d/auth.opencdms.org.conf:ro
-      - ./geo.opencdms.org.conf:/etc/nginx/conf.d/geo.opencdms.org.conf:ro
+      # To update conf files in containers use `docker compose build --no-cache nginx`
+      # To fix, try mounting directory instead of individual files
+      - ./auth.opencdms.org.conf:/etc/nginx/conf.d/auth.opencdms.org.conf
+      - ./geo.opencdms.org.conf:/etc/nginx/conf.d/geo.opencdms.org.conf
       - /etc/letsencrypt/:/etc/letsencrypt/:ro
     depends_on:
      - keycloak

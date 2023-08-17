@@ -1,0 +1,63 @@
+server {
+  listen 80;
+  server_name geo.opencdms.org;
+
+  location /.well-known/acme-challenge/ {
+    root /var/www/certbot;
+  }
+
+  location / {
+    return 301 https://$host$request_uri;
+  }
+}
+
+server {
+  resolver 8.8.8.8; # use Google DNS resolver
+  listen 443 ssl;
+  server_name geo.opencdms.org;
+
+  ssl_certificate /etc/letsencrypt/live/geo.opencdms.org/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/live/geo.opencdms.org/privkey.pem;
+  ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+  ssl_ciphers HIGH:!aNULL:!MD5;
+
+  # fastcgi_buffers 16 16k; 
+  # fastcgi_buffer_size 32k;
+  # Fix "upstream sent too big header" error.
+  proxy_buffer_size 128k;
+  proxy_buffers 4 256k;
+  proxy_busy_buffers_size 256k;
+
+  location / {
+    auth_request /auth;
+    proxy_pass http://api:5000;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+
+    auth_request_set $user $upstream_http_x_auth_request_user;
+    auth_request_set $email $upstream_http_x_auth_request_email;
+    proxy_set_header X-User $user;
+    proxy_set_header X-Email $email;
+  }
+
+  location ~ ^/oauth2/ {
+    # Allow oauth2-proxy endpoints to be accessed without auth_request
+    proxy_pass http://127.0.0.1:4180;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+  }
+
+  location /auth {
+    # internal;
+    proxy_pass http://127.0.0.1:4180/oauth2/auth;
+    proxy_pass_request_body off;
+    proxy_set_header Content-Length "";
+    proxy_set_header X-Original-URI $request_uri;
+    proxy_set_header Authorization $http_authorization;  # this line is required to forward the authorization header to Keycloak
+  }
+}
+
